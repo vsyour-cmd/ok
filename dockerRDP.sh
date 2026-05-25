@@ -1,3 +1,10 @@
+#!/bin/bash
+#
+# Configure And Start RDP FOR Docker Debian Linux.
+#
+#
+
+
 # 1. Create shared directory on host
 echo "Creating shared directory on host..."
 mkdir -p $(pwd)/share_box
