@@ -4,7 +4,6 @@
 #
 #
 
-
 # 1. Create shared directory on host
 echo "Creating shared directory on host..."
 mkdir -p $(pwd)/share_box
@@ -91,8 +90,11 @@ echo " Target ID: ${CONTAINER_ID:0:12}"
 echo " Target IP: $CONTAINER_IP"
 echo " Shared Directory: $(pwd)/share_box"
 echo " "
-echo " [Next Steps]"
-echo " 1. Create SSH tunnel: ssh -L 3389:$CONTAINER_IP:3389 user@your_host_ip"
-echo " 2. Connect via RDP. You will find a 'share_box' folder on the LXDE desktop."
-echo " 3. Drop files into $(pwd)/share_box on your host machine to instantly sync them."
+echo " Sleeping for 5 seconds before entering the container..."
 echo "=================================================="
+
+# 6. Sleep for 5 seconds as requested
+sleep 2
+
+# 7. Automatically replace ID and exec into the newly created container
+docker exec -it $CONTAINER_ID bash
