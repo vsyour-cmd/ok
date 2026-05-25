@@ -1,9 +1,9 @@
-# 1. 在物理机当前路径下创建共享文件夹，并赋予最高权限（防止容器内普通用户无法写入）
+# 1. Create shared directory on host
 echo "Creating shared directory on host..."
 mkdir -p $(pwd)/share_box
 chmod 777 $(pwd)/share_box
 
-# 2. 生成 Dockerfile (保持 LXDE 桌面和核心组件)
+# 2. Generate Dockerfile
 cat << 'EOF' > Dockerfile
 # Base on Debian Bookworm official image
 FROM debian:bookworm
@@ -59,12 +59,12 @@ tail -f /dev/null' > /entrypoint.sh && \
 CMD ["/entrypoint.sh"]
 EOF
 
-# 3. 清理旧容器并重新编译
+# 3. Clean up old containers and rebuild phantom-node
 echo "Cleaning up old containers and rebuilding phantom-node..."
 docker rm -f phantom-node 2>/dev/null
 docker build -t phantom-node .
 
-# 4. 启动容器：加入 -v 参数，将宿主机的 share_box 挂载到 Linux 桌面上
+# 4. Launch the container with volume mount
 echo "Launching the container with volume mount..."
 CONTAINER_ID=$(docker run -d \
   --name phantom-node \
@@ -75,17 +75,17 @@ CONTAINER_ID=$(docker run -d \
   -v $(pwd)/share_box:/home/admin/Desktop/share_box \
   phantom-node)
 
-# 5. 获取内网 IP
+# 5. Output connection details
 CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_ID)
 
 echo "=================================================="
-echo " 🚀 Deployment Completed Successfully!"
+echo " Deployment Completed Successfully!"
 echo " Target ID: ${CONTAINER_ID:0:12}"
 echo " Target IP: $CONTAINER_IP"
 echo " Shared Directory: $(pwd)/share_box"
 echo " "
-echo " [下一步操作指南]"
-echo " 1. 建立隧道: ssh -L 3389:$CONTAINER_IP:3389 user@your_host_ip"
-echo " 2. 连接桌面后，你会看到桌面上多了一个 'share_box' 文件夹。"
-echo " 3. 把物理机的文件扔进刚才创建的 $(pwd)/share_box 目录，系统内秒级同步！"
+echo " [Next Steps]"
+echo " 1. Create SSH tunnel: ssh -L 3389:$CONTAINER_IP:3389 user@your_host_ip"
+echo " 2. Connect via RDP. You will find a 'share_box' folder on the LXDE desktop."
+echo " 3. Drop files into $(pwd)/share_box on your host machine to instantly sync them."
 echo "=================================================="
