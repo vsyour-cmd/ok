@@ -11,7 +11,7 @@ FROM debian:bookworm
 # Set non-interactive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install core packages including fuse
+# Install core packages, fuse, and ca-certificates
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     lxde \
@@ -25,6 +25,7 @@ RUN apt-get update && \
     xz-utils \
     ssh \
     fuse \
+    ca-certificates \
     && sed -i 's/#user_allow_other/user_allow_other/g' /etc/fuse.conf \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -47,6 +48,9 @@ mkdir -p /run/dbus\n\
 dbus-uuidgen > /var/lib/dbus/machine-id\n\
 ln -sf /var/lib/dbus/machine-id /etc/machine-id\n\
 dbus-daemon --system\n\
+\n\
+# Fix folder ownership altered by Docker volume mounts\n\
+chown -R admin:admin /home/admin\n\
 \n\
 rm -f /var/run/xrdp/xrdp.pid /var/run/xrdp/xrdp-sesman.pid\n\
 service ssh start\n\
@@ -87,8 +91,8 @@ echo " "
 echo " Sleeping for 5 seconds before entering the container..."
 echo "=================================================="
 
-# 6. Sleep for 5 seconds as requested
+# 6. Sleep for 5 seconds to ensure services start
 sleep 5
 
-# 7. Automatically replace ID and exec into the container (Forcing TTY input)
+# 7. Automatically exec into the container
 docker exec -it $CONTAINER_ID bash < /dev/tty
