@@ -1,9 +1,3 @@
-#!/bin/bash
-#
-# Configure And Start RDP FOR Docker Debian Linux.
-#
-#
-
 # 1. Create shared directory on host
 echo "Creating shared directory on host..."
 mkdir -p $(pwd)/share_box
@@ -94,7 +88,7 @@ echo " Sleeping for 5 seconds before entering the container..."
 echo "=================================================="
 
 # 6. Sleep for 5 seconds as requested
-sleep 2
+sleep 5
 
-# 7. Automatically replace ID and exec into the newly created container
-docker exec -it $CONTAINER_ID bash
+# 7. Automatically replace ID and exec into the container (Forcing TTY input)
+docker exec -it $CONTAINER_ID bash < /dev/tty
