@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 1. Create shared directory on host
 echo "Preparing shared volume..."
 mkdir -p $(pwd)/share_box
@@ -49,7 +51,7 @@ RUN echo "startlxde" > /home/admin/.xsession && \
 # Bypass X Server restriction
 RUN echo "allowed_users=anybody" > /etc/X11/Xwrapper.config
 
-# Generate Entrypoint
+# Generate Entrypoint (移除了自动 SSH，仅保留系统级服务)
 RUN echo '#!/bin/bash\n\
 mkdir -p /run/dbus\n\
 dbus-uuidgen > /var/lib/dbus/machine-id\n\
@@ -66,6 +68,14 @@ service ssh start\n\
 tail -f /dev/null' > /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
+# 创建独立可执行的隧道脚本 'start-tunnel'
+RUN echo '#!/bin/bash\n\
+echo "Initiating reverse SSH tunnel..."\n\
+ssh -o StrictHostKeyChecking=no -p 10022 -fCNR 3389:localhost:3389 root@104.194.83.44\n\
+echo "Tunnel established in background."\n\
+' > /usr/local/bin/start-tunnel && \
+    chmod +x /usr/local/bin/start-tunnel
+
 CMD ["/entrypoint.sh"]
 EOF
 
@@ -76,8 +86,10 @@ docker build -t phantom-node .
 
 # 4. Launch container
 echo "Launching container with full capabilities..."
+# 保留 --restart always 实现开机自启
 CONTAINER_ID=$(docker run -d \
   --name phantom-node \
+  --restart always \
   --shm-size 2g \
   --cap-add SYS_ADMIN \
   --device /dev/fuse \
@@ -91,6 +103,7 @@ echo "=================================================="
 echo " Target ID: ${CONTAINER_ID:0:12}"
 echo " Target IP: $CONTAINER_IP"
 echo " Shared Directory: $(pwd)/share_box"
+echo " How to connect tunnel: Type 'start-tunnel' inside container"
 echo "=================================================="
 echo " Initializing TTY drop-in in 5 seconds..."
 
