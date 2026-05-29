@@ -13,7 +13,8 @@ echo "=================================================="
 
 # 提前向用户索要 SSH 密码，用于后续全自动免密配置
 # (输入时屏幕不会显示字符，保障安全)
-read -s -p "🔑 请输入远程服务器 ($REMOTE_HOST) 的密码: " SSH_PASS
+# read -s -p "🔑 请输入远程服务器 ($REMOTE_HOST) 的密码: " SSH_PASS
+read -s -p "🔑 请输入远程服务器 ($REMOTE_HOST) 的密码: " SSH_PASS < /dev/tty
 echo -e "\n=> 密码已记录，开始自动化构建...\n"
 
 # 2. Create shared directory on host
