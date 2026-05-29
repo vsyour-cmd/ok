@@ -47,10 +47,11 @@ RUN adduser --gecos "" admin && \
     echo "admin:admin123" | chpasswd && \
     usermod -aG sudo,ssl-cert admin
 
-# Configure LXDE as default & 修复 polkit 弹窗
+# Configure LXDE as default & 彻底物理移除 lxpolkit 防止弹窗
 RUN echo "startlxde" > /home/admin/.xsession && \
     chown admin:admin /home/admin/.xsession && \
-    rm -f /etc/xdg/autostart/lxpolkit.desktop
+    rm -f /etc/xdg/autostart/lxpolkit.desktop && \
+    rm -f /usr/bin/lxpolkit    
 
 RUN echo "allowed_users=anybody" > /etc/X11/Xwrapper.config
 
