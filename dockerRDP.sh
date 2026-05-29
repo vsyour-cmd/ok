@@ -47,6 +47,9 @@ RUN adduser --gecos "" admin && \
 # Configure LXDE as default
 RUN echo "startlxde" > /home/admin/.xsession && \
     chown admin:admin /home/admin/.xsession
+    
+# 🌟 新增这一行：删除 lxpolkit 的自启动文件，解决 No session for pid 报错
+RUN rm -f /etc/xdg/autostart/lxpolkit.desktop
 
 # Bypass X Server restriction
 RUN echo "allowed_users=anybody" > /etc/X11/Xwrapper.config
